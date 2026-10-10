@@ -14,7 +14,7 @@ Your spending entries, monthly budget, and display currency are saved in your br
 - Review monthly totals, entry counts, and remaining budget.
 - Set a monthly budget and see a simple progress bar.
 - Filter the log by category or search by description.
-- Change the display currency with separate per-currency trackers or convert amounts using a daily exchange-rate reference.
+- Change the display currency with separate per-currency trackers or convert amounts using Frankfurter's daily reference exchange rates. Bank rates and fees may differ.
 - Switch between light and dark themes, and use English or Bahasa Indonesia.
 - Save theme, language, and currency-specific tracker data in this browser.
 - Expand a bilingual summary about why tracking spending matters, with a link to its BCA source.
