@@ -593,6 +593,12 @@ td.date-cell {
   border-top: 1px solid var(--rule);
 }
 
+.currency-choice h3 {
+  margin: 0 0 6px;
+  font-size: var(--text-sm);
+  line-height: 1.35;
+}
+
 .currency-choice p {
   margin: 0 0 10px;
 }
