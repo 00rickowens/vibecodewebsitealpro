@@ -31,6 +31,7 @@ let expenses = loadExpenses();
 let monthlyBudget = loadBudget();
 let displayCurrency = loadCurrency();
 let selectedMonth = getLocalDate().slice(0, 7);
+let navigationFlashTimeout;
 
 function getLocalDate() {
   const now = new Date();
@@ -300,6 +301,37 @@ function handleTransactionClick(event) {
   renderPage();
 }
 
+function flashNavigationDestination(event) {
+  const navigationLink = event.currentTarget;
+  const targetId = navigationLink.getAttribute("href").slice(1);
+  const destination = document.getElementById(targetId);
+
+  if (destination === null) {
+    return;
+  }
+
+  document.querySelectorAll(".destination-flash").forEach(function (element) {
+    element.classList.remove("destination-flash");
+  });
+  document.querySelectorAll(".nav-flash").forEach(function (element) {
+    element.classList.remove("nav-flash");
+  });
+
+  if (navigationFlashTimeout) {
+    window.clearTimeout(navigationFlashTimeout);
+  }
+
+  void destination.offsetWidth;
+  void navigationLink.offsetWidth;
+  destination.classList.add("destination-flash");
+  navigationLink.classList.add("nav-flash");
+
+  navigationFlashTimeout = window.setTimeout(function () {
+    destination.classList.remove("destination-flash");
+    navigationLink.classList.remove("nav-flash");
+  }, 1000);
+}
+
 function initializePage() {
   populateCategories();
   currencySelect.value = displayCurrency;
@@ -315,6 +347,9 @@ function initializePage() {
   expenseForm.addEventListener("submit", handleExpenseSubmit);
   document.querySelector("#save-budget").addEventListener("click", handleBudgetSave);
   transactionList.addEventListener("click", handleTransactionClick);
+  document.querySelectorAll(".main-nav a").forEach(function (navigationLink) {
+    navigationLink.addEventListener("click", flashNavigationDestination);
+  });
   monthSelect.addEventListener("change", function () {
     selectedMonth = monthSelect.value || getLocalDate().slice(0, 7);
     renderPage();

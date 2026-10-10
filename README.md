@@ -15,7 +15,8 @@ Your spending entries, monthly budget, and display currency are saved in your br
 - Set a monthly budget and see a simple progress bar.
 - Filter the log by category or search by description.
 - Change the display currency.
-- Keep saved data in the browser on this device.
+- Navigate to each section with a brief one-second highlight.
+- Use an off-white, black, and dark gray palette without drop shadows.
 
 ## Assignment concepts in the code
 
