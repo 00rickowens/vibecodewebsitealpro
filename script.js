@@ -25,6 +25,14 @@ const TRANSLATIONS = {
     latestEntriesFirst:"LATEST ENTRIES FIRST",allCategories:"All categories",search:"SEARCH",searchPlaceholder:"Find an entry",dateColumn:"DATE",whatColumn:"WHAT",action:"ACTION",
     emptyEntries:"No entries match this view. Add a spending entry to get started.",noEntriesShown:"0 entries shown",oneEntryShown:"1 entry shown",manyEntriesShown:"{count} entries shown",remove:"Remove",
     footerLine:"THE SPENDING POST / KEEP IT SIMPLE / CHECK IN OFTEN",footerLocalStorage:"Your entries stay in this browser on this device.",
+    articleTitle:"Why Tracking Your Spending Matters",articleOpen:"[OPEN]",articleClose:"[CLOSE]",
+    articleIntro:"Tracking spending shows where money goes and whether a budget fits your needs. Comparing spending over time helps spot unusual increases, unnecessary purchases, and unexpected costs. This awareness can help you adjust your budget, prepare for emergencies, set practical limits, and plan for long-term goals.",
+    articlePointOne:"See which categories use your money and adjust allocations when needed.",
+    articlePointTwo:"Learn your average daily, weekly, and monthly spending so unusual changes stand out.",
+    articlePointThree:"Separate necessary purchases from unnecessary ones and prepare for sudden expenses.",
+    articlePointFour:"Build a budgeting habit that makes longer-term financial planning easier.",
+    articlePointFive:"Use spending patterns to set a practical daily transaction limit.",
+    articleSourceLabel:"Source: ",articleSourceLink:"Read the original article on BCA",
     categories:["Food and drink","Transport","Study","Shopping","Bills","Other"]
   },
   id: {
@@ -41,6 +49,14 @@ const TRANSLATIONS = {
     latestEntriesFirst:"CATATAN TERBARU DI ATAS",allCategories:"Semua kategori",search:"CARI",searchPlaceholder:"Cari catatan",dateColumn:"TANGGAL",whatColumn:"KETERANGAN",action:"TINDAKAN",
     emptyEntries:"Tidak ada catatan yang cocok. Tambahkan pengeluaran untuk memulai.",noEntriesShown:"0 catatan ditampilkan",oneEntryShown:"1 catatan ditampilkan",manyEntriesShown:"{count} catatan ditampilkan",remove:"Hapus",
     footerLine:"CATATAN PENGELUARAN / TETAP SEDERHANA / PERIKSA SECARA RUTIN",footerLocalStorage:"Catatan tersimpan di browser pada perangkat ini.",
+    articleTitle:"Mengapa Mencatat Pengeluaran Itu Penting",articleOpen:"[BUKA]",articleClose:"[TUTUP]",
+    articleIntro:"Mencatat pengeluaran membantu Anda melihat ke mana uang digunakan dan apakah anggaran sudah sesuai kebutuhan. Membandingkan pengeluaran dari waktu ke waktu memudahkan Anda mengenali kenaikan yang tidak biasa, belanja yang tidak perlu, dan biaya tak terduga. Informasi ini dapat membantu Anda menyesuaikan anggaran, menyiapkan dana darurat, menetapkan batas yang masuk akal, dan merencanakan tujuan jangka panjang.",
+    articlePointOne:"Lihat kategori yang paling banyak menggunakan uang dan sesuaikan alokasinya bila perlu.",
+    articlePointTwo:"Ketahui rata-rata pengeluaran harian, mingguan, dan bulanan agar perubahan yang tidak biasa mudah terlihat.",
+    articlePointThree:"Bedakan kebutuhan dan keinginan, serta bersiap untuk pengeluaran mendadak.",
+    articlePointFour:"Bangun kebiasaan membuat anggaran agar perencanaan keuangan jangka panjang lebih mudah.",
+    articlePointFive:"Gunakan pola pengeluaran untuk menetapkan batas transaksi harian yang realistis.",
+    articleSourceLabel:"Sumber: ",articleSourceLink:"Baca artikel asli di situs BCA",
     categories:["Makanan dan minuman","Transportasi","Pendidikan","Belanja","Tagihan","Lainnya"]
   }
 };
