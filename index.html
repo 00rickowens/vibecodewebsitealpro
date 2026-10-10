@@ -168,6 +168,23 @@
       </div>
     </main>
 
+    <dialog id="currency-change-dialog" class="currency-dialog" aria-labelledby="currency-dialog-title">
+      <h2 id="currency-dialog-title" data-i18n="currencyDialogTitle">Change currency?</h2>
+      <p id="currency-switch-description"></p>
+      <section class="currency-choice">
+        <p id="currency-separate-description"></p>
+        <button id="start-separate-tracker" class="button button-dark" type="button" data-i18n="separateTracker">Start separate tracking</button>
+      </section>
+      <section class="currency-choice">
+        <p id="currency-convert-description"></p>
+        <p class="currency-rate-note" data-i18n="dailyRateNote">Conversion uses the latest daily reference rate. Actual bank rates or fees may differ.</p>
+        <p id="currency-rate-result" class="currency-rate-result" aria-live="polite"></p>
+        <button id="convert-currency" class="button button-dark" type="button" data-i18n="reviewConversionRate">Review exchange rate</button>
+      </section>
+      <p id="currency-dialog-message" class="currency-dialog-message" aria-live="polite"></p>
+      <button id="cancel-currency-change" class="button button-dark" type="button" data-i18n="cancelCurrencyChange">Cancel</button>
+    </dialog>
+
     <footer class="site-footer">
       <p data-i18n="footerLine">THE SPENDING POST / KEEP IT SIMPLE / CHECK IN OFTEN</p>
       <div class="footer-utility-row">
