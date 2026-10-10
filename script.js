@@ -4,6 +4,7 @@ const STORAGE_KEYS = {
   expenses: "spendingPost.expenses",
   budget: "spendingPost.monthlyBudget",
   currency: "spendingPost.currency",
+  currencyTrackings: "spendingPost.currencyTrackings",
   theme: "spendingPost.theme",
   language: "spendingPost.language"
 };
@@ -26,6 +27,13 @@ const TRANSLATIONS = {
     emptyEntries:"No entries match this view. Add a spending entry to get started.",noEntriesShown:"0 entries shown",oneEntryShown:"1 entry shown",manyEntriesShown:"{count} entries shown",remove:"Remove",
     footerLine:"THE SPENDING POST / KEEP IT SIMPLE / CHECK IN OFTEN",footerLocalStorage:"Your entries stay in this browser on this device.",
     articleTitle:"Why Tracking Your Spending Matters",
+    currencyDialogTitle:"Change currency?",currencySwitchPrompt:"You chose {to}. Choose what to do with the tracker currently in {from}.",
+    separateTracker:"Start separate tracking",separateDescription:"Start a separate {to} tracker at zero. Your {from} tracking stays saved. If {to} already has a saved tracker, it will reopen.",
+    convertTracker:"Convert current tracking",convertDescription:"Convert entries and the monthly budget from {from} to {to}. Existing {to} entries stay saved and converted entries are added; budgets are combined.",
+    dailyRateNote:"Conversion uses the latest daily reference rate. Actual bank rates or fees may differ.",
+    reviewConversionRate:"Review exchange rate",confirmConversion:"Convert at this rate",cancelCurrencyChange:"Cancel",
+    rateLoading:"Getting the latest reference rate…",rateUnavailable:"Could not get the exchange rate. Try again or start a separate tracker.",
+    ratePreview:"Rate dated {date}: 1 {from} = {amount} {to}.",conversionComplete:"Tracking converted to {to} using the rate dated {date}.",
     articleIntro:"Tracking spending shows where money goes and whether a budget fits your needs. Comparing spending over time helps spot unusual increases, unnecessary purchases, and unexpected costs. This awareness can help you adjust your budget, prepare for emergencies, set practical limits, and plan for long-term goals.",
     articlePointOne:"See which categories use your money and adjust allocations when needed.",
     articlePointTwo:"Learn your average daily, weekly, and monthly spending so unusual changes stand out.",
@@ -50,6 +58,13 @@ const TRANSLATIONS = {
     emptyEntries:"Tidak ada catatan yang cocok. Tambahkan pengeluaran untuk memulai.",noEntriesShown:"0 catatan ditampilkan",oneEntryShown:"1 catatan ditampilkan",manyEntriesShown:"{count} catatan ditampilkan",remove:"Hapus",
     footerLine:"CATATAN PENGELUARAN / TETAP SEDERHANA / PERIKSA SECARA RUTIN",footerLocalStorage:"Catatan tersimpan di browser pada perangkat ini.",
     articleTitle:"Mengapa Mencatat Pengeluaran Itu Penting",
+    currencyDialogTitle:"Ganti mata uang?",currencySwitchPrompt:"Anda memilih {to}. Pilih tindakan untuk catatan dalam {from}.",
+    separateTracker:"Gunakan catatan terpisah",separateDescription:"Mulai catatan {to} baru dari nol. Catatan {from} tetap tersimpan. Jika sebelumnya Anda sudah mencatat dalam {to}, data tersebut akan dibuka kembali.",
+    convertTracker:"Konversi catatan saat ini",convertDescription:"Konversi transaksi dan anggaran bulanan dari {from} ke {to}. Catatan {to} yang sudah ada tetap tersimpan dan transaksi hasil konversi ditambahkan; anggaran akan digabungkan.",
+    dailyRateNote:"Konversi menggunakan kurs referensi harian terbaru. Kurs atau biaya dari bank Anda mungkin berbeda.",
+    reviewConversionRate:"Lihat kurs konversi",confirmConversion:"Konversi dengan kurs ini",cancelCurrencyChange:"Batal",
+    rateLoading:"Mengambil kurs referensi terbaru…",rateUnavailable:"Kurs tidak dapat diambil. Coba lagi atau gunakan catatan terpisah.",
+    ratePreview:"Kurs tanggal {date}: 1 {from} = {amount} {to}.",conversionComplete:"Catatan dikonversi ke {to} menggunakan kurs tanggal {date}.",
     articleIntro:"Mencatat pengeluaran membantu Anda melihat ke mana uang digunakan dan apakah anggaran sudah sesuai kebutuhan. Membandingkan pengeluaran dari waktu ke waktu memudahkan Anda mengenali kenaikan yang tidak biasa, belanja yang tidak perlu, dan biaya tak terduga. Informasi ini dapat membantu Anda menyesuaikan anggaran, menyiapkan dana darurat, menetapkan batas yang masuk akal, dan merencanakan tujuan jangka panjang.",
     articlePointOne:"Lihat kategori yang paling banyak menggunakan uang dan sesuaikan alokasinya bila perlu.",
     articlePointTwo:"Ketahui rata-rata pengeluaran harian, mingguan, dan bulanan agar perubahan yang tidak biasa mudah terlihat.",
@@ -73,6 +88,13 @@ const budgetInput = document.querySelector("#budget-input");
 const currencySelect = document.querySelector("#currency-select");
 const themeSelect = document.querySelector("#theme-select");
 const languageSelect = document.querySelector("#language-select");
+const currencyChangeDialog = document.querySelector("#currency-change-dialog");
+const currencySwitchDescription = document.querySelector("#currency-switch-description");
+const currencySeparateDescription = document.querySelector("#currency-separate-description");
+const currencyConvertDescription = document.querySelector("#currency-convert-description");
+const currencyRateResult = document.querySelector("#currency-rate-result");
+const currencyDialogMessage = document.querySelector("#currency-dialog-message");
+const convertCurrencyButton = document.querySelector("#convert-currency");
 const transactionList = document.querySelector("#transaction-list");
 const emptyState = document.querySelector("#empty-state");
 const resultsLabel = document.querySelector("#results-label");
@@ -82,13 +104,16 @@ const budgetStatus = document.querySelector("#budget-status");
 const budgetMeter = document.querySelector("#budget-meter");
 const budgetMeterFill = document.querySelector("#budget-meter-fill");
 
-let expenses = loadExpenses();
-let monthlyBudget = loadBudget();
 let displayCurrency = loadCurrency();
+let currencyTrackings = loadCurrencyTrackings();
+let expenses = currencyTrackings[displayCurrency].expenses;
+let monthlyBudget = currencyTrackings[displayCurrency].budget;
 let currentTheme = loadTheme();
 let currentLanguage = loadLanguage();
 let selectedMonth = getLocalDate().slice(0, 7);
 let navigationFlashTimeout;
+let pendingCurrency = null;
+let pendingConversion = null;
 
 function getLocalDate() {
   const now = new Date();
@@ -133,6 +158,76 @@ function loadCurrency() {
   }
 }
 
+function createCurrencyTracking(savedExpenses, savedBudget) {
+  return {
+    expenses: Array.isArray(savedExpenses) ? savedExpenses : [],
+    budget: Number.isFinite(Number(savedBudget)) && Number(savedBudget) > 0 ? Number(savedBudget) : 0,
+    budgetImports: {}
+  };
+}
+
+function loadCurrencyTrackings() {
+  const serializedTrackings = localStorage.getItem(STORAGE_KEYS.currencyTrackings);
+  const supportedCurrencies = ["IDR", "USD", "EUR", "GBP"];
+  const trackings = {};
+
+  if (serializedTrackings !== null) {
+    try {
+      const parsedTrackings = JSON.parse(serializedTrackings);
+      if (parsedTrackings && typeof parsedTrackings === "object" && !Array.isArray(parsedTrackings)) {
+        for (const currency of supportedCurrencies) {
+          const savedTracking = parsedTrackings[currency];
+          if (savedTracking && typeof savedTracking === "object" && !Array.isArray(savedTracking)) {
+            const savedBudget = Number(savedTracking.budget);
+            const budgetImports = savedTracking.budgetImports;
+            trackings[currency] = {
+              expenses: Array.isArray(savedTracking.expenses) ? savedTracking.expenses : [],
+              budget: Number.isFinite(savedBudget) && savedBudget > 0 ? savedBudget : 0,
+              budgetImports: budgetImports && typeof budgetImports === "object" && !Array.isArray(budgetImports)
+                ? budgetImports
+                : {}
+            };
+          }
+        }
+      }
+    } catch (error) {
+      return { [displayCurrency]: createCurrencyTracking(loadExpenses(), loadBudget()) };
+    }
+  }
+
+  if (!Object.prototype.hasOwnProperty.call(trackings, displayCurrency)) {
+    trackings[displayCurrency] = createCurrencyTracking(loadExpenses(), loadBudget());
+  }
+  return trackings;
+}
+
+function ensureCurrencyTracking(currency) {
+  if (!Object.prototype.hasOwnProperty.call(currencyTrackings, currency)) {
+    currencyTrackings[currency] = createCurrencyTracking([], 0);
+  }
+  return currencyTrackings[currency];
+}
+
+function saveCurrentTracking() {
+  const currentTracking = ensureCurrencyTracking(displayCurrency);
+  currentTracking.expenses = expenses;
+  currentTracking.budget = monthlyBudget;
+  localStorage.setItem(STORAGE_KEYS.currencyTrackings, JSON.stringify(currencyTrackings));
+  localStorage.setItem(STORAGE_KEYS.expenses, JSON.stringify(expenses));
+  localStorage.setItem(STORAGE_KEYS.budget, String(monthlyBudget));
+  localStorage.setItem(STORAGE_KEYS.currency, displayCurrency);
+}
+
+function roundCurrencyAmount(amount, currency) {
+  const fractionDigits = currency === "IDR" ? 0 : 2;
+  const factor = Math.pow(10, fractionDigits);
+  return Math.round((amount + Number.EPSILON) * factor) / factor;
+}
+
+function formatRateNumber(rate) {
+  return new Intl.NumberFormat(getLocale(), { maximumSignificantDigits: 7 }).format(rate);
+}
+
 function loadTheme() {
   const savedTheme = localStorage.getItem(STORAGE_KEYS.theme);
   if (savedTheme === "dark") {
@@ -160,11 +255,14 @@ function getLocale() {
 }
 
 function saveExpenses() {
-  localStorage.setItem(STORAGE_KEYS.expenses, JSON.stringify(expenses));
+  saveCurrentTracking();
 }
 
 function saveBudget() {
-  localStorage.setItem(STORAGE_KEYS.budget, String(monthlyBudget));
+  const currentTracking = ensureCurrencyTracking(displayCurrency);
+  currentTracking.budget = monthlyBudget;
+  currentTracking.budgetImports = {};
+  saveCurrentTracking();
 }
 
 function formatMoney(amount) {
@@ -366,6 +464,164 @@ function showFormMessage(message) {
   formMessage.textContent = message;
 }
 
+function updateCurrencyDialogText() {
+  const fromCurrency = displayCurrency;
+  const toCurrency = pendingCurrency;
+  currencySwitchDescription.textContent = translate("currencySwitchPrompt")
+    .replace("{from}", fromCurrency)
+    .replace("{to}", toCurrency);
+  currencySeparateDescription.textContent = translate("separateDescription")
+    .replace("{from}", fromCurrency)
+    .replace("{to}", toCurrency);
+  currencyConvertDescription.textContent = translate("convertDescription")
+    .replaceAll("{from}", fromCurrency)
+    .replaceAll("{to}", toCurrency);
+}
+
+function openCurrencyChangeDialog(nextCurrency) {
+  pendingCurrency = nextCurrency;
+  pendingConversion = null;
+  currencySelect.value = displayCurrency;
+  currencyRateResult.textContent = "";
+  currencyDialogMessage.textContent = "";
+  convertCurrencyButton.disabled = false;
+  convertCurrencyButton.textContent = translate("reviewConversionRate");
+  updateCurrencyDialogText();
+  currencyChangeDialog.showModal();
+}
+
+function closeCurrencyChangeDialog() {
+  if (currencyChangeDialog.open) {
+    currencyChangeDialog.close();
+  }
+  pendingCurrency = null;
+  pendingConversion = null;
+  currencySelect.value = displayCurrency;
+  currencyRateResult.textContent = "";
+  currencyDialogMessage.textContent = "";
+  convertCurrencyButton.disabled = false;
+  convertCurrencyButton.textContent = translate("reviewConversionRate");
+}
+
+function activateCurrencyTracking(currency) {
+  displayCurrency = currency;
+  const tracking = ensureCurrencyTracking(currency);
+  expenses = tracking.expenses;
+  monthlyBudget = tracking.budget;
+  currencySelect.value = currency;
+  saveCurrentTracking();
+  closeCurrencyChangeDialog();
+  renderPage();
+}
+
+function startSeparateTracking() {
+  if (pendingCurrency === null) {
+    return;
+  }
+  const nextCurrency = pendingCurrency;
+  saveCurrentTracking();
+  ensureCurrencyTracking(nextCurrency);
+  activateCurrencyTracking(nextCurrency);
+}
+
+function applyCurrencyConversion(rateData) {
+  const fromCurrency = displayCurrency;
+  const toCurrency = pendingCurrency;
+  if (toCurrency === null || rateData.from !== fromCurrency || rateData.to !== toCurrency) {
+    return;
+  }
+
+  saveCurrentTracking();
+  const targetTracking = ensureCurrencyTracking(toCurrency);
+  const convertedExpenses = [];
+  const convertedIds = new Set();
+
+  for (const expense of expenses) {
+    const convertedId = "conversion-" + fromCurrency + "-" + expense.id;
+    convertedIds.add(convertedId);
+    convertedExpenses.push({
+      ...expense,
+      id: convertedId,
+      amount: roundCurrencyAmount(Number(expense.amount) * rateData.rate, toCurrency)
+    });
+  }
+
+  targetTracking.expenses = targetTracking.expenses
+    .filter(function (expense) {
+      return !convertedIds.has(expense.id);
+    })
+    .concat(convertedExpenses);
+
+  targetTracking.budgetImports = targetTracking.budgetImports || {};
+  const previousImportedBudget = Number(targetTracking.budgetImports[fromCurrency]) || 0;
+  const convertedBudget = roundCurrencyAmount(monthlyBudget * rateData.rate, toCurrency);
+  targetTracking.budget = roundCurrencyAmount(
+    Math.max(0, Number(targetTracking.budget) - previousImportedBudget + convertedBudget),
+    toCurrency
+  );
+  targetTracking.budgetImports[fromCurrency] = convertedBudget;
+
+  activateCurrencyTracking(toCurrency);
+}
+
+async function handleCurrencyConversion() {
+  if (pendingCurrency === null) {
+    return;
+  }
+  if (pendingConversion !== null) {
+    applyCurrencyConversion(pendingConversion);
+    return;
+  }
+
+  const fromCurrency = displayCurrency;
+  const toCurrency = pendingCurrency;
+  convertCurrencyButton.disabled = true;
+  currencyDialogMessage.textContent = translate("rateLoading");
+  currencyRateResult.textContent = "";
+
+  try {
+    const rateUrl = "https://api.frankfurter.dev/v2/rate/" +
+      encodeURIComponent(fromCurrency.toLowerCase()) + "/" +
+      encodeURIComponent(toCurrency.toLowerCase());
+    const response = await fetch(rateUrl);
+    if (!response.ok) {
+      throw new Error("Exchange rate request failed");
+    }
+
+    const rateData = await response.json();
+    const rate = Number(rateData.rate);
+    if (!Number.isFinite(rate) || rate <= 0) {
+      throw new Error("Exchange rate was not available");
+    }
+
+    pendingConversion = {
+      from: fromCurrency,
+      to: toCurrency,
+      rate: rate,
+      date: rateData.date || getLocalDate()
+    };
+    currencyRateResult.textContent = translate("ratePreview")
+      .replace("{date}", formatDate(pendingConversion.date))
+      .replace("{from}", fromCurrency)
+      .replace("{amount}", formatRateNumber(rate))
+      .replace("{to}", toCurrency);
+    currencyDialogMessage.textContent = "";
+    convertCurrencyButton.textContent = translate("confirmConversion");
+  } catch (error) {
+    currencyDialogMessage.textContent = translate("rateUnavailable");
+  } finally {
+    convertCurrencyButton.disabled = false;
+  }
+}
+
+function handleCurrencySelection() {
+  const nextCurrency = currencySelect.value;
+  if (nextCurrency === displayCurrency) {
+    return;
+  }
+  openCurrencyChangeDialog(nextCurrency);
+}
+
 function handleExpenseSubmit(event) {
   event.preventDefault();
 
@@ -469,6 +725,7 @@ function initializePage() {
   monthSelect.value = selectedMonth;
   dateInput.value = getLocalDate();
   applyLanguage();
+  saveCurrentTracking();
 
   expenseForm.addEventListener("submit", handleExpenseSubmit);
   document.querySelector("#save-budget").addEventListener("click", handleBudgetSave);
@@ -482,10 +739,13 @@ function initializePage() {
   });
   categoryFilter.addEventListener("change", renderTransactions);
   searchInput.addEventListener("input", renderTransactions);
-  currencySelect.addEventListener("change", function () {
-    displayCurrency = currencySelect.value;
-    localStorage.setItem(STORAGE_KEYS.currency, displayCurrency);
-    renderPage();
+  currencySelect.addEventListener("change", handleCurrencySelection);
+  document.querySelector("#start-separate-tracker").addEventListener("click", startSeparateTracking);
+  convertCurrencyButton.addEventListener("click", handleCurrencyConversion);
+  document.querySelector("#cancel-currency-change").addEventListener("click", closeCurrencyChangeDialog);
+  currencyChangeDialog.addEventListener("cancel", function (event) {
+    event.preventDefault();
+    closeCurrencyChangeDialog();
   });
   themeSelect.addEventListener("change", function () {
     currentTheme = themeSelect.value === "dark" ? "dark" : "light";
