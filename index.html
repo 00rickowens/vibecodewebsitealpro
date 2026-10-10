@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A simple personal spending tracker.">
+  <title>The Spending Post</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <div class="site-shell">
+    <header class="masthead">
+      <div class="masthead-topline">
+        <span>PERSONAL FINANCE PAGE</span>
+        <span id="today-label">TODAY</span>
+      </div>
+      <h1>THE SPENDING POST</h1>
+      <p class="masthead-subtitle">A simple place to keep an eye on your money.</p>
+      <div class="account-strip">
+        <span>MEMBER: YOU</span>
+        <span>STATUS: ONLINE</span>
+        <span>YOUR MONEY, YOUR BUSINESS</span>
+      </div>
+    </header>
+
+    <nav class="main-nav" aria-label="Main navigation">
+      <a href="#overview">Overview</a>
+      <a href="#new-entry">Add spending</a>
+      <a href="#ledger">Spending log</a>
+    </nav>
+
+    <main>
+      <section class="welcome-box" aria-labelledby="welcome-title">
+        <div>
+          <p class="section-kicker">WELCOME TO YOUR MONEY PAGE</p>
+          <h2 id="welcome-title">Small purchases add up. Keep track as you go.</h2>
+        </div>
+        <label class="currency-control" for="currency-select">
+          DISPLAY CURRENCY
+          <select id="currency-select" aria-label="Display currency">
+            <option value="IDR">IDR</option>
+            <option value="USD">USD</option>
+            <option value="EUR">EUR</option>
+            <option value="GBP">GBP</option>
+          </select>
+        </label>
+      </section>
+
+      <section id="overview" class="overview-section" aria-labelledby="overview-title">
+        <div class="section-heading">
+          <h2 id="overview-title">YOUR MONTH AT A GLANCE</h2>
+          <label for="month-select">VIEW MONTH
+            <input id="month-select" type="month">
+          </label>
+        </div>
+        <div class="summary-grid">
+          <article class="summary-card summary-card-blue">
+            <h3>SPENT THIS MONTH</h3>
+            <p id="monthly-total" class="summary-value">IDR 0</p>
+          </article>
+          <article class="summary-card summary-card-yellow">
+            <h3>MONTHLY BUDGET</h3>
+            <p id="monthly-budget" class="summary-value">IDR 0</p>
+          </article>
+          <article class="summary-card summary-card-pink">
+            <h3>LEFT TO SPEND</h3>
+            <p id="remaining-budget" class="summary-value">IDR 0</p>
+          </article>
+          <article class="summary-card summary-card-white">
+            <h3>ENTRIES THIS MONTH</h3>
+            <p id="entry-count" class="summary-value">0</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="budget-panel" aria-labelledby="budget-title">
+        <div class="panel-heading">
+          <h2 id="budget-title">MONTHLY BUDGET PLAN</h2>
+          <span id="budget-status" class="status-label">SET A BUDGET</span>
+        </div>
+        <div class="budget-controls">
+          <label for="budget-input">Your monthly limit
+            <input id="budget-input" type="number" min="0" step="any" inputmode="decimal" placeholder="Enter an amount">
+          </label>
+          <button id="save-budget" class="button button-dark" type="button">Save budget</button>
+        </div>
+        <div id="budget-meter" class="budget-meter" role="progressbar" aria-label="Monthly budget used" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <div id="budget-meter-fill" class="budget-meter-fill"></div>
+        </div>
+        <p id="budget-message" class="budget-message" aria-live="polite">Set a budget to see how much you have left.</p>
+      </section>
+
+      <div class="content-grid">
+        <section id="new-entry" class="panel entry-panel" aria-labelledby="entry-title">
+          <div class="panel-heading">
+            <h2 id="entry-title">ADD A SPENDING ENTRY</h2>
+            <span class="section-kicker">NEW POST</span>
+          </div>
+          <form id="expense-form">
+            <label for="description-input">What did you spend on?
+              <input id="description-input" name="description" type="text" maxlength="80" required placeholder="For example, lunch">
+            </label>
+            <div class="field-row">
+              <label for="amount-input">Amount
+                <input id="amount-input" name="amount" type="number" min="0.01" step="any" inputmode="decimal" required placeholder="0">
+              </label>
+              <label for="date-input">Date
+                <input id="date-input" name="date" type="date" required>
+              </label>
+            </div>
+            <label for="category-input">Category
+              <select id="category-input" name="category" required></select>
+            </label>
+            <button class="button button-blue" type="submit">Record spending</button>
+            <p id="form-message" class="form-message" aria-live="polite"></p>
+          </form>
+        </section>
+
+        <section id="ledger" class="panel ledger-panel" aria-labelledby="ledger-title">
+          <div class="panel-heading">
+            <h2 id="ledger-title">YOUR SPENDING LOG</h2>
+            <span class="section-kicker">LATEST ENTRIES FIRST</span>
+          </div>
+          <div class="filter-row">
+            <label for="category-filter">CATEGORY
+              <select id="category-filter">
+                <option value="all">All categories</option>
+              </select>
+            </label>
+            <label for="search-input">SEARCH
+              <input id="search-input" type="search" placeholder="Find an entry">
+            </label>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">DATE</th>
+                  <th scope="col">WHAT</th>
+                  <th scope="col">CATEGORY</th>
+                  <th scope="col" class="amount-column">AMOUNT</th>
+                  <th scope="col"><span class="visually-hidden">ACTION</span></th>
+                </tr>
+              </thead>
+              <tbody id="transaction-list"></tbody>
+            </table>
+          </div>
+          <p id="empty-state" class="empty-state" hidden>No entries match this view. Add a spending entry to get started.</p>
+          <p id="results-label" class="results-label" aria-live="polite"></p>
+        </section>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <p>THE SPENDING POST / KEEP IT SIMPLE / CHECK IN OFTEN</p>
+      <p>Your entries stay in this browser on this device.</p>
+    </footer>
+  </div>
+</body>
+</html>
