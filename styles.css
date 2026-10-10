@@ -496,6 +496,74 @@ td.date-cell {
   margin: 3px 0;
 }
 
+.article-note {
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid var(--rule);
+  text-align: left;
+}
+
+.article-note summary {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+  font-size: var(--text-sm);
+  line-height: 1.4;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  list-style: none;
+}
+
+.article-note summary::-webkit-details-marker {
+  display: none;
+}
+
+.article-note summary:focus-visible {
+  outline: 2px solid var(--mid);
+  outline-offset: 3px;
+}
+
+.article-toggle-close {
+  display: none;
+  white-space: nowrap;
+}
+
+.article-note[open] .article-toggle-open {
+  display: none;
+}
+
+.article-note[open] .article-toggle-close {
+  display: inline;
+}
+
+.article-summary {
+  max-width: 760px;
+  margin-top: 14px;
+  color: var(--ink);
+  text-align: left;
+  font-size: var(--text-sm);
+  line-height: 1.55;
+}
+
+.article-summary p {
+  margin: 0 0 10px;
+}
+
+.article-summary ul {
+  margin: 0 0 14px;
+  padding-left: 20px;
+}
+
+.article-summary li {
+  margin: 5px 0;
+}
+
+.article-source {
+  color: var(--muted);
+}
+
 .destination-flash {
   animation: destination-flash 1s ease-out;
 }
