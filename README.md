@@ -16,6 +16,7 @@ Your spending entries, monthly budget, and display currency are saved in your br
 - Filter the log by category or search by description.
 - Change the display currency, switch between light and dark themes, and use English or Bahasa Indonesia.
 - Save theme and language preferences in this browser.
+- Expand a bilingual summary about why tracking spending matters, with a link to its BCA source.
 - Navigate to each section with a brief one-second highlight.
 - Use an off-white, black, and dark gray palette without drop shadows.
 
