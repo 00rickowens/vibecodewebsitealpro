@@ -496,18 +496,28 @@ td.date-cell {
   margin: 3px 0;
 }
 
+.footer-utility-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: baseline;
+  gap: 4px 12px;
+}
+
+.footer-utility-row p {
+  margin: 3px 0;
+}
+
 .article-note {
-  margin-top: 14px;
-  padding-top: 10px;
-  border-top: 1px solid var(--rule);
   text-align: left;
 }
 
+.footer-utility-row .article-note[open] {
+  flex-basis: 100%;
+}
+
 .article-note summary {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
+  display: block;
   cursor: pointer;
   font-size: var(--text-sm);
   line-height: 1.4;
@@ -523,19 +533,6 @@ td.date-cell {
 .article-note summary:focus-visible {
   outline: 2px solid var(--mid);
   outline-offset: 3px;
-}
-
-.article-toggle-close {
-  display: none;
-  white-space: nowrap;
-}
-
-.article-note[open] .article-toggle-open {
-  display: none;
-}
-
-.article-note[open] .article-toggle-close {
-  display: inline;
 }
 
 .article-summary {
