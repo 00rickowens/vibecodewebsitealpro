@@ -3,7 +3,8 @@
 const STORAGE_KEYS = {
   expenses: "spendingPost.expenses",
   budget: "spendingPost.monthlyBudget",
-  currency: "spendingPost.currency"
+  currency: "spendingPost.currency",
+  theme: "spendingPost.theme"
 };
 
 const CATEGORIES = ["Food and drink", "Transport", "Study", "Shopping", "Bills", "Other"];
@@ -18,6 +19,7 @@ const searchInput = document.querySelector("#search-input");
 const monthSelect = document.querySelector("#month-select");
 const budgetInput = document.querySelector("#budget-input");
 const currencySelect = document.querySelector("#currency-select");
+const themeSelect = document.querySelector("#theme-select");
 const transactionList = document.querySelector("#transaction-list");
 const emptyState = document.querySelector("#empty-state");
 const resultsLabel = document.querySelector("#results-label");
@@ -30,6 +32,7 @@ const budgetMeterFill = document.querySelector("#budget-meter-fill");
 let expenses = loadExpenses();
 let monthlyBudget = loadBudget();
 let displayCurrency = loadCurrency();
+let currentTheme = loadTheme();
 let selectedMonth = getLocalDate().slice(0, 7);
 let navigationFlashTimeout;
 
@@ -73,6 +76,15 @@ function loadCurrency() {
     return savedCurrency;
   } else {
     return "IDR";
+  }
+}
+
+function loadTheme() {
+  const savedTheme = localStorage.getItem(STORAGE_KEYS.theme);
+  if (savedTheme === "dark") {
+    return "dark";
+  } else {
+    return "light";
   }
 }
 
@@ -335,6 +347,8 @@ function flashNavigationDestination(event) {
 function initializePage() {
   populateCategories();
   currencySelect.value = displayCurrency;
+  themeSelect.value = currentTheme;
+  document.documentElement.dataset.theme = currentTheme;
   monthSelect.value = selectedMonth;
   dateInput.value = getLocalDate();
   document.querySelector("#today-label").textContent = new Intl.DateTimeFormat("en", {
@@ -360,6 +374,11 @@ function initializePage() {
     displayCurrency = currencySelect.value;
     localStorage.setItem(STORAGE_KEYS.currency, displayCurrency);
     renderPage();
+  });
+  themeSelect.addEventListener("change", function () {
+    currentTheme = themeSelect.value === "dark" ? "dark" : "light";
+    document.documentElement.dataset.theme = currentTheme;
+    localStorage.setItem(STORAGE_KEYS.theme, currentTheme);
   });
 
   renderPage();

@@ -14,7 +14,8 @@ Your spending entries, monthly budget, and display currency are saved in your br
 - Review monthly totals, entry counts, and remaining budget.
 - Set a monthly budget and see a simple progress bar.
 - Filter the log by category or search by description.
-- Change the display currency.
+- Change the display currency and switch between light and dark themes.
+- Save the theme preference in this browser.
 - Navigate to each section with a brief one-second highlight.
 - Use an off-white, black, and dark gray palette without drop shadows.
 
