@@ -1,37 +1,37 @@
-# The Spending Post
+# Catatan Pengeluaran
 
-A simple personal spending tracker with an old-internet inspired interface.
+Pencatat pengeluaran pribadi sederhana dengan antarmuka yang terinspirasi dari internet zaman dulu.
 
-## Open the site
+## Buka Situs
 
-Open index.html in a modern web browser. No build step or external libraries are required.
+Buka `index.html` di peramban web modern. Tidak perlu proses build atau pustaka eksternal.
 
-Your spending entries, monthly budget, and display currency are saved in your browser on this device with localStorage.
+Catatan pengeluaran, anggaran bulanan, dan mata uang tampilan tersimpan di browser pada perangkat ini menggunakan `localStorage`.
 
-## Features
+## Fitur
 
-- Add and remove spending entries with a description, amount, date, and category.
-- Review monthly totals, entry counts, and remaining budget.
-- Set a monthly budget and see a simple progress bar.
-- Filter the log by category or search by description.
-- Change the display currency with separate per-currency trackers or convert amounts using Frankfurter's daily reference exchange rates. Bank rates and fees may differ.
-- Switch between light and dark themes, and use English or Bahasa Indonesia.
-- Save theme, language, and currency-specific tracker data in this browser.
-- Expand a bilingual summary about why tracking spending matters, with a link to its BCA source.
-- Navigate to each section with a brief one-second highlight.
-- Use an off-white, black, and dark gray palette without drop shadows.
+- Tambahkan dan hapus catatan pengeluaran yang berisi keterangan, jumlah, tanggal, dan kategori.
+- Lihat total bulanan, jumlah catatan, dan sisa anggaran.
+- Atur anggaran bulanan dan lihat bilah progres sederhana.
+- Filter daftar pengeluaran berdasarkan kategori atau cari berdasarkan keterangannya.
+- Ganti mata uang tampilan dengan catatan terpisah untuk setiap mata uang, atau konversikan jumlah menggunakan kurs referensi harian dari Frankfurter. Kurs bank dan biaya tambahan bisa berbeda.
+- Beralih antara tema terang dan gelap, serta gunakan bahasa Inggris atau Bahasa Indonesia.
+- Simpan tema, bahasa, dan data catatan untuk setiap mata uang di browser ini.
+- Buka ringkasan dalam dua bahasa tentang pentingnya mencatat pengeluaran, lengkap dengan tautan ke sumber dari BCA.
+- Buka tiap bagian melalui navigasi dengan sorotan singkat selama satu detik.
+- Gunakan palet putih pudar, hitam, dan abu-abu tua tanpa bayangan.
 
-## Assignment concepts in the code
+## Konsep Tugas dalam Kode
 
-- Variables and data types: JavaScript uses strings, numbers, arrays, objects, and booleans to hold entries and settings.
-- Operations: it adds spending amounts, subtracts totals from the budget, and calculates budget percentage.
-- Arrays: the entries and category names are stored in arrays.
-- Loops: for-of loops build category options, calculate totals, filter entries, and render table rows.
-- Functions: named functions load data, format amounts, update the summary, render the log, and handle form actions.
-- If and else: conditionals validate form entries, handle an empty log, and show whether spending is within budget.
+- Variabel dan tipe data: JavaScript menggunakan string, angka, array, objek, dan boolean untuk menyimpan catatan serta pengaturan.
+- Operasi: kode menjumlahkan pengeluaran, mengurangi total pengeluaran dari anggaran, dan menghitung persentase anggaran yang terpakai.
+- Array: catatan pengeluaran dan nama kategori disimpan dalam array.
+- Perulangan: perulangan `for...of` membuat pilihan kategori, menghitung total, memfilter catatan, dan menampilkan baris tabel.
+- Fungsi: fungsi bernama digunakan untuk memuat data, memformat jumlah, memperbarui ringkasan, menampilkan daftar pengeluaran, dan menangani formulir.
+- If dan else: kondisi digunakan untuk memeriksa data formulir, menangani daftar yang kosong, dan menunjukkan apakah pengeluaran masih sesuai anggaran.
 
-## Files
+## Berkas
 
-- index.html contains the page structure.
-- styles.css contains the solid-color, responsive layout.
-- script.js contains the spending tracker behavior.
+- `index.html` berisi struktur halaman.
+- `styles.css` berisi tata letak responsif dengan warna solid.
+- `script.js` berisi perilaku pencatat pengeluaran.
