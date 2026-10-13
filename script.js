@@ -112,8 +112,7 @@ let currentTheme = loadTheme();
 let currentLanguage = loadLanguage();
 let selectedMonth = getLocalDate().slice(0, 7);
 let navigationFlashTimeout;
-let navigationScrollFallbackTimeout;
-let navigationScrollEndHandler;
+let navigationScrollFrame;
 let pendingCurrency = null;
 let pendingConversion = null;
 
@@ -698,13 +697,9 @@ function flashNavigationDestination(event) {
     return;
   }
 
-  if (navigationScrollFallbackTimeout) {
-    window.clearTimeout(navigationScrollFallbackTimeout);
-    navigationScrollFallbackTimeout = null;
-  }
-  if (navigationScrollEndHandler) {
-    window.removeEventListener("scrollend", navigationScrollEndHandler);
-    navigationScrollEndHandler = null;
+  if (navigationScrollFrame) {
+    window.cancelAnimationFrame(navigationScrollFrame);
+    navigationScrollFrame = null;
   }
   if (navigationFlashTimeout) {
     window.clearTimeout(navigationFlashTimeout);
@@ -723,24 +718,11 @@ function flashNavigationDestination(event) {
     0,
     window.scrollY + destinationRect.top - (window.innerHeight - destinationRect.height) / 2
   );
-  const scrollDistance = Math.abs(targetTop - window.scrollY);
+  const startTop = window.scrollY;
+  const scrollDistance = Math.abs(targetTop - startTop);
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  destination.scrollIntoView({
-    behavior: prefersReducedMotion ? "auto" : "smooth",
-    block: "center"
-  });
-
   function startHighlight() {
-    if (navigationScrollFallbackTimeout) {
-      window.clearTimeout(navigationScrollFallbackTimeout);
-      navigationScrollFallbackTimeout = null;
-    }
-    if (navigationScrollEndHandler) {
-      window.removeEventListener("scrollend", navigationScrollEndHandler);
-      navigationScrollEndHandler = null;
-    }
-
     void destination.offsetWidth;
     void navigationLink.offsetWidth;
     destination.classList.add("destination-flash");
@@ -754,15 +736,32 @@ function flashNavigationDestination(event) {
   }
 
   if (prefersReducedMotion || scrollDistance < 2) {
+    window.scrollTo({ top: targetTop, behavior: "auto" });
     startHighlight();
-  } else {
-    navigationScrollEndHandler = startHighlight;
-    window.addEventListener("scrollend", navigationScrollEndHandler, { once: true });
-    navigationScrollFallbackTimeout = window.setTimeout(
-      startHighlight,
-      Math.min(1800, Math.max(650, scrollDistance * 0.35))
-    );
+    return;
   }
+
+  const duration = Math.min(2600, Math.max(1200, scrollDistance * 0.6));
+  const animationStart = performance.now();
+
+  function stepScroll(now) {
+    const progress = Math.min((now - animationStart) / duration, 1);
+    const easedProgress = progress < 0.5
+      ? 4 * progress * progress * progress
+      : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+    const nextTop = startTop + (targetTop - startTop) * easedProgress;
+
+    window.scrollTo({ top: nextTop, behavior: "auto" });
+
+    if (progress < 1) {
+      navigationScrollFrame = window.requestAnimationFrame(stepScroll);
+    } else {
+      navigationScrollFrame = null;
+      startHighlight();
+    }
+  }
+
+  navigationScrollFrame = window.requestAnimationFrame(stepScroll);
 }
 
 function initializePage() {
