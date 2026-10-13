@@ -34,20 +34,20 @@
 
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --ink: #f4f1e9;
-  --dark: #111;
-  --mid: #aaa;
-  --rule: #5d5d5d;
-  --paper: #222;
-  --light: #2c2c2c;
-  --soft: #3a3a3a;
-  --page: #111;
-  --control: #262626;
-  --muted: #c6c3bb;
+  --ink: #f1efe9;
+  --dark: #414141;
+  --mid: #b6b3aa;
+  --rule: #74716a;
+  --paper: #303030;
+  --light: #3d3d3d;
+  --soft: #515151;
+  --page: #292929;
+  --control: #3a3a3a;
+  --muted: #d0cdc5;
   --header-text: #f4f1e9;
-  --header-top: #050505;
-  --header-mid: #202020;
-  --meter-fill: #888;
+  --header-top: #333;
+  --header-mid: #4a4a4a;
+  --meter-fill: #aaa;
   --highlight: #e2dfd7;
 }
 
@@ -191,16 +191,54 @@ main {
   text-transform: uppercase;
 }
 
+.preferences-menu {
+  position: relative;
+  z-index: 5;
+}
+
+.preferences-menu > summary {
+  display: block;
+  padding: 8px 12px;
+  border: 1px solid var(--rule);
+  cursor: pointer;
+  font-size: var(--text-xs);
+  line-height: 1.3;
+  letter-spacing: 0.06em;
+  list-style: none;
+  text-transform: uppercase;
+}
+
+.preferences-menu > summary::-webkit-details-marker {
+  display: none;
+}
+
+.preferences-menu > summary::marker {
+  content: "";
+}
+
+.preferences-menu[open] > summary {
+  border-bottom-color: transparent;
+}
+
+.preferences-panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  width: min(290px, calc(100vw - 32px));
+  padding: 14px;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+}
+
 .display-controls {
-  display: flex;
-  align-items: end;
-  gap: 14px;
+  display: grid;
+  gap: 12px;
 }
 
 .currency-control,
 .theme-control,
 .language-control {
-  min-width: 130px;
+  min-width: 0;
 }
 
 .overview-section {
@@ -737,20 +775,13 @@ td.date-cell {
     width: 100%;
   }
 
-  .display-controls {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    width: 100%;
-  }
-
-  .language-control {
-    grid-column: 1 / -1;
+  .preferences-menu {
+    align-self: flex-end;
   }
 
   .currency-control,
   .theme-control,
   .language-control {
-    flex: 1;
     min-width: 0;
   }
 
