@@ -151,7 +151,7 @@ button {
 }
 
 .main-nav a.nav-flash {
-  animation: nav-flash 1s ease-out;
+  animation: nav-flash 650ms ease-in-out both;
 }
 
 main {
@@ -677,21 +677,19 @@ td.date-cell {
 }
 
 .destination-flash {
+  outline: 2px solid transparent;
   outline-offset: 8px;
-  animation: destination-flash 1s ease-out;
+  animation: destination-flash 650ms ease-in-out both;
 }
 
 @keyframes destination-flash {
   0%,
   100% {
-    outline: 0 solid transparent;
-    outline-offset: 8px;
+    outline-color: transparent;
   }
 
-  20%,
-  65% {
-    outline: 2px solid var(--highlight);
-    outline-offset: 8px;
+  30% {
+    outline-color: var(--highlight);
   }
 }
 
@@ -702,8 +700,7 @@ td.date-cell {
     background: transparent;
   }
 
-  20%,
-  65% {
+  30% {
     color: var(--ink);
     background: var(--soft);
   }
