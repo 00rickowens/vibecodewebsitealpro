@@ -112,6 +112,8 @@ let currentTheme = loadTheme();
 let currentLanguage = loadLanguage();
 let selectedMonth = getLocalDate().slice(0, 7);
 let navigationFlashTimeout;
+let navigationScrollFallbackTimeout;
+let navigationScrollEndHandler;
 let pendingCurrency = null;
 let pendingConversion = null;
 
@@ -687,12 +689,26 @@ function handleTransactionClick(event) {
 }
 
 function flashNavigationDestination(event) {
+  event.preventDefault();
   const navigationLink = event.currentTarget;
   const targetId = navigationLink.getAttribute("href").slice(1);
   const destination = document.getElementById(targetId);
 
   if (destination === null) {
     return;
+  }
+
+  if (navigationScrollFallbackTimeout) {
+    window.clearTimeout(navigationScrollFallbackTimeout);
+    navigationScrollFallbackTimeout = null;
+  }
+  if (navigationScrollEndHandler) {
+    window.removeEventListener("scrollend", navigationScrollEndHandler);
+    navigationScrollEndHandler = null;
+  }
+  if (navigationFlashTimeout) {
+    window.clearTimeout(navigationFlashTimeout);
+    navigationFlashTimeout = null;
   }
 
   document.querySelectorAll(".destination-flash").forEach(function (element) {
@@ -702,19 +718,51 @@ function flashNavigationDestination(event) {
     element.classList.remove("nav-flash");
   });
 
-  if (navigationFlashTimeout) {
-    window.clearTimeout(navigationFlashTimeout);
+  const destinationRect = destination.getBoundingClientRect();
+  const targetTop = Math.max(
+    0,
+    window.scrollY + destinationRect.top - (window.innerHeight - destinationRect.height) / 2
+  );
+  const scrollDistance = Math.abs(targetTop - window.scrollY);
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  destination.scrollIntoView({
+    behavior: prefersReducedMotion ? "auto" : "smooth",
+    block: "center"
+  });
+
+  function startHighlight() {
+    if (navigationScrollFallbackTimeout) {
+      window.clearTimeout(navigationScrollFallbackTimeout);
+      navigationScrollFallbackTimeout = null;
+    }
+    if (navigationScrollEndHandler) {
+      window.removeEventListener("scrollend", navigationScrollEndHandler);
+      navigationScrollEndHandler = null;
+    }
+
+    void destination.offsetWidth;
+    void navigationLink.offsetWidth;
+    destination.classList.add("destination-flash");
+    navigationLink.classList.add("nav-flash");
+
+    navigationFlashTimeout = window.setTimeout(function () {
+      destination.classList.remove("destination-flash");
+      navigationLink.classList.remove("nav-flash");
+      navigationFlashTimeout = null;
+    }, 1000);
   }
 
-  void destination.offsetWidth;
-  void navigationLink.offsetWidth;
-  destination.classList.add("destination-flash");
-  navigationLink.classList.add("nav-flash");
-
-  navigationFlashTimeout = window.setTimeout(function () {
-    destination.classList.remove("destination-flash");
-    navigationLink.classList.remove("nav-flash");
-  }, 1000);
+  if (prefersReducedMotion || scrollDistance < 2) {
+    startHighlight();
+  } else {
+    navigationScrollEndHandler = startHighlight;
+    window.addEventListener("scrollend", navigationScrollEndHandler, { once: true });
+    navigationScrollFallbackTimeout = window.setTimeout(
+      startHighlight,
+      Math.min(1800, Math.max(650, scrollDistance * 0.35))
+    );
+  }
 }
 
 function initializePage() {
