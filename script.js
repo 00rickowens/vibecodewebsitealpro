@@ -732,7 +732,7 @@ function flashNavigationDestination(event) {
       destination.classList.remove("destination-flash");
       navigationLink.classList.remove("nav-flash");
       navigationFlashTimeout = null;
-    }, 1000);
+    }, 700);
   }
 
   if (targetId === "overview") {
