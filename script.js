@@ -735,6 +735,11 @@ function flashNavigationDestination(event) {
     }, 1000);
   }
 
+  if (targetId === "overview") {
+    startHighlight();
+    return;
+  }
+
   if (prefersReducedMotion || scrollDistance < 2) {
     window.scrollTo({ top: targetTop, behavior: "auto" });
     startHighlight();
