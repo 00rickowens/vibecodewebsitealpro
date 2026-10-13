@@ -733,6 +733,15 @@ function initializePage() {
   document.querySelectorAll(".main-nav a").forEach(function (navigationLink) {
     navigationLink.addEventListener("click", flashNavigationDestination);
   });
+  monthSelect.addEventListener("click", function () {
+    if (typeof monthSelect.showPicker === "function") {
+      try {
+        monthSelect.showPicker();
+      } catch (error) {
+        monthSelect.focus();
+      }
+    }
+  });
   monthSelect.addEventListener("change", function () {
     selectedMonth = monthSelect.value || getLocalDate().slice(0, 7);
     renderPage();
