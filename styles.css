@@ -74,6 +74,14 @@ input {
   color: var(--ink);
 }
 
+button {
+  cursor: pointer;
+  pointer-events: auto;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: manipulation;
+}
+
 .site-shell {
   width: min(1160px, calc(100% - 40px));
   margin: 0 auto;
