@@ -36,7 +36,10 @@
           <p class="section-kicker" data-i18n="welcomeKicker">WELCOME TO YOUR MONEY PAGE</p>
           <h2 id="welcome-title" data-i18n="welcomeTitle">Small purchases add up. Keep track as you go.</h2>
         </div>
-        <div class="display-controls">
+        <details class="preferences-menu">
+          <summary data-i18n="preferences">Preferences</summary>
+          <div class="preferences-panel">
+<div class="display-controls">
           <label class="currency-control" for="currency-select">
             <span data-i18n="displayCurrency">DISPLAY CURRENCY</span>
             <select id="currency-select" aria-label="Display currency" data-i18n-aria-label="displayCurrency">
@@ -61,6 +64,8 @@
             </select>
           </label>
         </div>
+          </div>
+        </details>
       </section>
 
       <section id="overview" class="overview-section" aria-labelledby="overview-title">
