@@ -335,6 +335,17 @@ main {
   max-width: 360px;
 }
 
+.budget-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.budget-actions .button {
+  flex: 1 1 130px;
+  white-space: nowrap;
+}
+
 input,
 select {
   width: 100%;
@@ -824,6 +835,10 @@ td.date-cell {
 
   .budget-controls label {
     max-width: none;
+  }
+
+  .budget-actions {
+    width: 100%;
   }
 
   .field-row,
