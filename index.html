@@ -104,7 +104,10 @@
           <label for="budget-input"><span data-i18n="yourMonthlyLimit">Your monthly limit</span>
             <input id="budget-input" type="number" min="0" step="any" inputmode="decimal" placeholder="Enter an amount" data-i18n-placeholder="enterAnAmount">
           </label>
-          <button id="save-budget" class="button button-dark" type="button" data-i18n="saveBudget">Save budget</button>
+          <div class="budget-actions">
+            <button id="save-budget" class="button button-dark" type="button" data-i18n="saveBudget">Save budget</button>
+            <button id="reset-budget" class="button button-dark" type="button" data-i18n="resetBudget">Reset budget</button>
+          </div>
         </div>
         <div id="budget-meter" class="budget-meter" role="progressbar" aria-label="Monthly budget used" data-i18n-aria-label="monthlyBudgetUsed" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
           <div id="budget-meter-fill" class="budget-meter-fill"></div>
