@@ -26,6 +26,7 @@ const TRANSLATIONS = {
     latestEntriesFirst:"LATEST ENTRIES FIRST",allCategories:"All categories",search:"SEARCH",searchPlaceholder:"Find an entry",dateColumn:"DATE",whatColumn:"WHAT",action:"ACTION",
     emptyEntries:"No entries match this view. Add a spending entry to get started.",noEntriesShown:"0 entries shown",oneEntryShown:"1 entry shown",manyEntriesShown:"{count} entries shown",remove:"Remove",
     footerLine:"THE SPENDING POST / KEEP IT SIMPLE / CHECK IN OFTEN",footerLocalStorage:"Your entries stay in this browser on this device.",
+    resetTrackings:"Reset trackings",confirmResetTrackings:"Reset all spending entries and budgets across every currency? This cannot be undone.",
     articleTitle:"Why Tracking Your Spending Matters",
     currencyDialogTitle:"Change currency?",currencySwitchPrompt:"You chose {to}. Choose what to do with the tracker currently in {from}.",
     separateTracker:"Start a separate tracker",separateDescription:"Start a separate {to} tracker at zero. Your {from} tracking stays saved. If {to} already has a saved tracker, it will reopen.",
@@ -57,6 +58,7 @@ const TRANSLATIONS = {
     latestEntriesFirst:"YANG TERBARU DI ATAS",allCategories:"Semua kategori",search:"CARI",searchPlaceholder:"Cari catatan",dateColumn:"TANGGAL",whatColumn:"PENGELUARAN",action:"TINDAKAN",
     emptyEntries:"Belum ada catatan yang cocok. Tambahkan pengeluaran untuk mulai.",noEntriesShown:"0 catatan ditampilkan",oneEntryShown:"1 catatan ditampilkan",manyEntriesShown:"{count} catatan ditampilkan",remove:"Hapus",
     footerLine:"CATATAN PENGELUARAN / TETAP SEDERHANA / CEK RUTIN",footerLocalStorage:"Catatanmu tersimpan di browser dan perangkat ini.",
+    resetTrackings:"Reset semua catatan",confirmResetTrackings:"Yakin reset semua catatan pengeluaran dan anggaran di semua mata uang? Tindakan ini nggak bisa dibatalin.",
     articleTitle:"Mengapa Mencatat Pengeluaran Itu Penting",
     currencyDialogTitle:"Ganti mata uang?",currencySwitchPrompt:"Kamu memilih {to}. Mau diapakan catatanmu yang masih dalam {from}?",
     separateTracker:"Pakai catatan terpisah",separateDescription:"Mulai catatan {to} baru dari nol. Catatan {from}-mu tetap tersimpan. Kalau sudah ada catatan {to}, catatan itu akan dibuka lagi.",
@@ -763,6 +765,23 @@ function handleBudgetReset() {
   renderPage();
 }
 
+function handleTrackingReset() {
+  if (!window.confirm(translate("confirmResetTrackings"))) {
+    return;
+  }
+
+  currencyTrackings = {};
+  expenses = [];
+  monthlyBudget = 0;
+  expenseForm.reset();
+  dateInput.value = getLocalDate();
+  categoryFilter.value = "all";
+  searchInput.value = "";
+  formMessage.textContent = "";
+  saveCurrentTracking();
+  renderPage();
+}
+
 function handleTransactionClick(event) {
   const removeButton = event.target.closest("[data-delete-id]");
   if (removeButton === null) {
@@ -872,6 +891,7 @@ function initializePage() {
   expenseForm.addEventListener("submit", handleExpenseSubmit);
   document.querySelector("#save-budget").addEventListener("click", handleBudgetSave);
   document.querySelector("#reset-budget").addEventListener("click", handleBudgetReset);
+  document.querySelector("#reset-trackings").addEventListener("click", handleTrackingReset);
   transactionList.addEventListener("click", handleTransactionClick);
   document.querySelectorAll(".main-nav a").forEach(function (navigationLink) {
     navigationLink.addEventListener("click", flashNavigationDestination);
