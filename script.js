@@ -199,6 +199,13 @@ function loadCurrencyTrackings() {
   if (!Object.prototype.hasOwnProperty.call(trackings, displayCurrency)) {
     trackings[displayCurrency] = createCurrencyTracking(loadExpenses(), loadBudget());
   }
+
+  for (const currency of supportedCurrencies) {
+    if (trackings[currency]) {
+      trackings[currency].expenses = uniqueExpensesByOrigin(trackings[currency].expenses, currency);
+    }
+  }
+
   return trackings;
 }
 
