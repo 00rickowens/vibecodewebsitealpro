@@ -337,12 +337,13 @@ main {
 
 .budget-actions {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 8px;
 }
 
 .budget-actions .button {
-  flex: 1 1 130px;
+  flex: 1 1 0;
+  min-width: 0;
   white-space: nowrap;
 }
 
