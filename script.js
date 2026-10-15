@@ -29,7 +29,7 @@ const TRANSLATIONS = {
     articleTitle:"Why Tracking Your Spending Matters",
     currencyDialogTitle:"Change currency?",currencySwitchPrompt:"You chose {to}. Choose what to do with the tracker currently in {from}.",
     separateTracker:"Start a separate tracker",separateDescription:"Start a separate {to} tracker at zero. Your {from} tracking stays saved. If {to} already has a saved tracker, it will reopen.",
-    convertTracker:"Convert current tracking",convertDescription:"Convert entries and the monthly budget from {from} to {to}. Existing {to} entries stay saved and converted entries are added; budgets are combined.",
+    convertTracker:"Convert current tracking",convertDescription:"Convert entries and the monthly budget from {from} to {to}. Existing {to} entries stay saved; matching converted entries are updated instead of duplicated, and budgets are combined without duplicates.",
     dailyRateNote:"Conversion uses the latest daily reference rate. Actual bank rates or fees may differ.",
     reviewConversionRate:"Convert to {to}",confirmConversion:"Confirm conversion to {to}",cancelCurrencyChange:"Cancel",
     rateLoading:"Getting the latest reference rate…",rateUnavailable:"Could not get the exchange rate. Try again or start a separate tracker.",
@@ -60,7 +60,7 @@ const TRANSLATIONS = {
     articleTitle:"Mengapa Mencatat Pengeluaran Itu Penting",
     currencyDialogTitle:"Ganti mata uang?",currencySwitchPrompt:"Kamu memilih {to}. Mau diapakan catatanmu yang masih dalam {from}?",
     separateTracker:"Pakai catatan terpisah",separateDescription:"Mulai catatan {to} baru dari nol. Catatan {from}-mu tetap tersimpan. Kalau sudah ada catatan {to}, catatan itu akan dibuka lagi.",
-    convertTracker:"Konversi catatan saat ini",convertDescription:"Konversi transaksi dan anggaran bulanan dari {from} ke {to}. Catatan {to} yang sudah ada tetap tersimpan. Catatan hasil konversi ditambahkan dan anggaran digabung.",
+    convertTracker:"Konversi catatan saat ini",convertDescription:"Konversi transaksi dan anggaran bulanan dari {from} ke {to}. Catatan {to} yang sudah ada tetap tersimpan; catatan yang sama diperbarui, bukan digandakan, dan anggaran digabung tanpa duplikasi.",
     dailyRateNote:"Konversi memakai kurs referensi harian terbaru. Kurs atau biaya bank bisa berbeda.",
     reviewConversionRate:"Konversi ke {to}",confirmConversion:"Lanjutkan konversi ke {to}",cancelCurrencyChange:"Batal",
     rateLoading:"Sedang mengambil kurs terbaru…",rateUnavailable:"Kurs belum bisa diambil. Coba lagi atau pakai catatan terpisah.",
@@ -525,6 +525,49 @@ function startSeparateTracking() {
   activateCurrencyTracking(nextCurrency);
 }
 
+function getExpenseOrigin(expense, currency) {
+  if (typeof expense.conversionOriginCurrency === "string" &&
+      typeof expense.conversionOriginId === "string") {
+    return {
+      currency: expense.conversionOriginCurrency,
+      id: expense.conversionOriginId
+    };
+  }
+
+  let originCurrency = currency;
+  let originId = String(expense.id);
+  let conversionMatch = /^conversion-([A-Z]{3})-(.+)$/.exec(originId);
+
+  while (conversionMatch !== null) {
+    originCurrency = conversionMatch[1];
+    originId = conversionMatch[2];
+    conversionMatch = /^conversion-([A-Z]{3})-(.+)$/.exec(originId);
+  }
+
+  return { currency: originCurrency, id: originId };
+}
+
+function getExpenseOriginKey(expense, currency) {
+  const origin = getExpenseOrigin(expense, currency);
+  return origin.currency + ":" + origin.id;
+}
+
+function uniqueExpensesByOrigin(expenseList, currency) {
+  const uniqueExpenses = new Map();
+
+  for (const expense of expenseList) {
+    const origin = getExpenseOrigin(expense, currency);
+    const originKey = origin.currency + ":" + origin.id;
+    const existingExpense = uniqueExpenses.get(originKey);
+
+    if (existingExpense === undefined || expense.id === origin.id) {
+      uniqueExpenses.set(originKey, expense);
+    }
+  }
+
+  return Array.from(uniqueExpenses.values());
+}
+
 function applyCurrencyConversion(rateData) {
   const fromCurrency = displayCurrency;
   const toCurrency = pendingCurrency;
@@ -533,34 +576,68 @@ function applyCurrencyConversion(rateData) {
   }
 
   saveCurrentTracking();
+  const sourceTracking = ensureCurrencyTracking(fromCurrency);
   const targetTracking = ensureCurrencyTracking(toCurrency);
+  const sourceExpenses = uniqueExpensesByOrigin(expenses, fromCurrency);
+  const targetExpenses = uniqueExpensesByOrigin(targetTracking.expenses, toCurrency);
+  const targetOriginKeys = new Set(targetExpenses.map(function (expense) {
+    return getExpenseOriginKey(expense, toCurrency);
+  }));
   const convertedExpenses = [];
-  const convertedIds = new Set();
+  const convertedOriginKeys = new Set();
 
-  for (const expense of expenses) {
-    const convertedId = "conversion-" + fromCurrency + "-" + expense.id;
-    convertedIds.add(convertedId);
+  for (const expense of sourceExpenses) {
+    const origin = getExpenseOrigin(expense, fromCurrency);
+    const originKey = origin.currency + ":" + origin.id;
+
+    if (origin.currency === toCurrency && targetOriginKeys.has(originKey)) {
+      continue;
+    }
+
+    convertedOriginKeys.add(originKey);
     convertedExpenses.push({
       ...expense,
-      id: convertedId,
+      id: origin.currency === toCurrency
+        ? origin.id
+        : "conversion-" + origin.currency + "-" + origin.id,
+      conversionOriginCurrency: origin.currency,
+      conversionOriginId: origin.id,
       amount: roundCurrencyAmount(Number(expense.amount) * rateData.rate, toCurrency)
     });
   }
 
-  targetTracking.expenses = targetTracking.expenses
+  targetTracking.expenses = targetExpenses
     .filter(function (expense) {
-      return !convertedIds.has(expense.id);
+      return !convertedOriginKeys.has(getExpenseOriginKey(expense, toCurrency));
     })
     .concat(convertedExpenses);
 
-  targetTracking.budgetImports = targetTracking.budgetImports || {};
-  const previousImportedBudget = Number(targetTracking.budgetImports[fromCurrency]) || 0;
-  const convertedBudget = roundCurrencyAmount(monthlyBudget * rateData.rate, toCurrency);
-  targetTracking.budget = roundCurrencyAmount(
-    Math.max(0, Number(targetTracking.budget) - previousImportedBudget + convertedBudget),
-    toCurrency
-  );
-  targetTracking.budgetImports[fromCurrency] = convertedBudget;
+  const sourceBudgetImports = sourceTracking.budgetImports || {};
+  const importedSourceBudget = Object.values(sourceBudgetImports).reduce(function (total, amount) {
+    const numericAmount = Number(amount);
+    return total + (Number.isFinite(numericAmount) ? Math.max(0, numericAmount) : 0);
+  }, 0);
+  const nativeSourceBudget = Math.max(0, Number(monthlyBudget) - importedSourceBudget);
+  const budgetUpdates = {
+    [fromCurrency]: roundCurrencyAmount(nativeSourceBudget * rateData.rate, toCurrency)
+  };
+
+  for (const [originCurrency, importedAmount] of Object.entries(sourceBudgetImports)) {
+    const numericAmount = Number(importedAmount);
+    if (originCurrency !== toCurrency && Number.isFinite(numericAmount) && numericAmount >= 0) {
+      budgetUpdates[originCurrency] = roundCurrencyAmount(numericAmount * rateData.rate, toCurrency);
+    }
+  }
+
+  const targetBudgetImports = targetTracking.budgetImports || {};
+  let updatedTargetBudget = Number(targetTracking.budget) || 0;
+  for (const [originCurrency, convertedAmount] of Object.entries(budgetUpdates)) {
+    const previousImportedAmount = Number(targetBudgetImports[originCurrency]) || 0;
+    updatedTargetBudget = Math.max(0, updatedTargetBudget - previousImportedAmount + convertedAmount);
+    targetBudgetImports[originCurrency] = convertedAmount;
+  }
+  targetTracking.budget = roundCurrencyAmount(updatedTargetBudget, toCurrency);
+  targetTracking.budgetImports = targetBudgetImports;
 
   activateCurrencyTracking(toCurrency);
 }
