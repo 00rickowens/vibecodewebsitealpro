@@ -19,7 +19,7 @@ const TRANSLATIONS = {
     displayCurrency:"DISPLAY CURRENCY",theme:"THEME",preferences:"Preferences",colorTheme:"Color theme",themeLight:"Light",themeDark:"Dark",language:"LANGUAGE",languageLabel:"Language",viewMonth:"VIEW MONTH",
     monthOverview:"YOUR MONTH AT A GLANCE",spentThisMonth:"SPENT THIS MONTH",monthlyBudgetLabel:"MONTHLY BUDGET",leftToSpend:"LEFT TO SPEND",entriesThisMonth:"ENTRIES THIS MONTH",
     monthlyBudgetPlan:"MONTHLY BUDGET PLAN",setABudget:"SET A BUDGET",overBudget:"OVER BUDGET",onYourPlan:"ON YOUR PLAN",checkAmount:"CHECK AMOUNT",
-    yourMonthlyLimit:"Your monthly limit",enterAnAmount:"Enter an amount",saveBudget:"Save budget",monthlyBudgetUsed:"Monthly budget used",setBudgetHint:"Set a budget to see how much you have left.",
+    yourMonthlyLimit:"Your monthly limit",enterAnAmount:"Enter an amount",saveBudget:"Save budget",resetBudget:"Reset budget",monthlyBudgetUsed:"Monthly budget used",setBudgetHint:"Set a budget to see how much you have left.",
     budgetOverBy:"You are over budget by {amount}.",budgetLeft:"{amount} left in your budget.",invalidMonthlyBudget:"Enter a monthly budget greater than zero.",
     addSpendingEntry:"ADD A SPENDING ENTRY",newPost:"NEW POST",descriptionLabel:"What did you spend on?",descriptionPlaceholder:"For example, lunch",amount:"Amount",date:"Date",category:"Category",recordSpending:"Record spending",
     descriptionRequired:"Add a short description before saving.",amountRequired:"Enter an amount greater than zero.",dateRequired:"Choose the date of this spending.",entrySaved:"Entry saved to your spending log.",
@@ -50,7 +50,7 @@ const TRANSLATIONS = {
     displayCurrency:"MATA UANG",theme:"TEMA",preferences:"Preferensi",colorTheme:"Tema",themeLight:"Terang",themeDark:"Gelap",language:"BAHASA",languageLabel:"Bahasa",viewMonth:"LIHAT BULAN",
     monthOverview:"RINGKASAN BULAN INI",spentThisMonth:"PENGELUARAN BULAN INI",monthlyBudgetLabel:"ANGGARAN BULANAN",leftToSpend:"SISA ANGGARAN",entriesThisMonth:"CATATAN BULAN INI",
     monthlyBudgetPlan:"RENCANA ANGGARAN BULANAN",setABudget:"ATUR ANGGARAN",overBudget:"LEBIH DARI ANGGARAN",onYourPlan:"SESUAI ANGGARAN",checkAmount:"CEK JUMLAH",
-    yourMonthlyLimit:"Batas anggaran bulananmu",enterAnAmount:"Masukkan jumlah",saveBudget:"Simpan anggaran",monthlyBudgetUsed:"Anggaran bulanan yang terpakai",setBudgetHint:"Atur anggaran supaya kamu tahu sisa uangmu.",
+    yourMonthlyLimit:"Batas anggaran bulananmu",enterAnAmount:"Masukkan jumlah",saveBudget:"Simpan anggaran",resetBudget:"Reset anggaran",monthlyBudgetUsed:"Anggaran bulanan yang terpakai",setBudgetHint:"Atur anggaran supaya kamu tahu sisa uangmu.",
     budgetOverBy:"Pengeluaranmu melebihi anggaran sebesar {amount}.",budgetLeft:"Sisa anggaranmu {amount}.",invalidMonthlyBudget:"Masukkan anggaran bulanan yang lebih dari nol.",
     addSpendingEntry:"TAMBAH CATATAN PENGELUARAN",newPost:"CATATAN BARU",descriptionLabel:"Kamu beli apa?",descriptionPlaceholder:"Contoh: makan siang",amount:"Jumlah",date:"Tanggal",category:"Kategori",recordSpending:"Simpan pengeluaran",
     descriptionRequired:"Tulis dulu pengeluaranmu.",amountRequired:"Masukkan jumlah yang lebih dari nol.",dateRequired:"Pilih tanggal pengeluaran.",entrySaved:"Pengeluaranmu tersimpan.",
@@ -757,6 +757,12 @@ function handleBudgetSave() {
   }
 }
 
+function handleBudgetReset() {
+  monthlyBudget = 0;
+  saveBudget();
+  renderPage();
+}
+
 function handleTransactionClick(event) {
   const removeButton = event.target.closest("[data-delete-id]");
   if (removeButton === null) {
@@ -865,6 +871,7 @@ function initializePage() {
 
   expenseForm.addEventListener("submit", handleExpenseSubmit);
   document.querySelector("#save-budget").addEventListener("click", handleBudgetSave);
+  document.querySelector("#reset-budget").addEventListener("click", handleBudgetReset);
   transactionList.addEventListener("click", handleTransactionClick);
   document.querySelectorAll(".main-nav a").forEach(function (navigationLink) {
     navigationLink.addEventListener("click", flashNavigationDestination);
